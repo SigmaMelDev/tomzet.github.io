@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tomato Thrower</title>
+<style>
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: #222;
+    }
+
+    #scene {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .target {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .target img {
+        width: 180px;
+    }
+
+    .tomato {
+        position: absolute;
+        background-image: url("redTomat.png");
+        background-size: cover;
+        background-position: center;
+        pointer-events: none;
+    }
+
+    .splat {
+        position: absolute;
+        background-image: url("tomato_splat.png");
+        background-size: cover;
+        background-position: center;
+        pointer-events: none;
+    }
+</style>
+</head>
+<body>
+
+<div id="scene">
+    <div class="target" id="target">
+        <img src="zeteriTOY.png">
+    </div>
+</div>
+
+<script>
+const scene = document.getElementById("scene");
+const target = document.getElementById("target");
+
+document.addEventListener("keydown", (e) => {
+    if (e.code === "Space") {
+        throwTomato();
+    }
+});
+
+function throwTomato() {
+    const tomato = document.createElement("div");
+    tomato.classList.add("tomato");
+
+    let startY = window.innerHeight - (30 + Math.random() * 40); 
+	// small variation at bottom
+
+	let peakY = window.innerHeight * (0.2 + Math.random() * 0.25); 
+	// peak varies between 20% and 45% of screen height
+
+	let velocityY = -(15 + Math.random() * 2); 
+	// different throw strength
+
+    let x = window.innerWidth / 2;
+    let y = startY;
+
+    tomato.style.left = x + "px";
+    tomato.style.top = y + "px";
+
+    scene.appendChild(tomato);
+
+    let velocityX = (Math.random() - 0.5) * 3;
+    let gravity = 0.4;
+
+    function update() {
+        velocityY += gravity;
+        x += velocityX;
+        y += velocityY;
+
+        tomato.style.left = x + "px";
+        tomato.style.top = y + "px";
+
+        // Depth effect
+        let t = (y - peakY) / (startY - peakY);
+        t = Math.max(0, Math.min(1, t));
+
+        let size = 80 * t + 20;
+        tomato.style.width = size + "px";
+        tomato.style.height = size + "px";
+
+        // Collision (ONLY when falling)
+        const tRect = target.getBoundingClientRect();
+        const tomatoRect = tomato.getBoundingClientRect();
+
+        if (
+            velocityY > 0 &&
+            tomatoRect.right > tRect.left &&
+            tomatoRect.left < tRect.right &&
+            tomatoRect.bottom > tRect.top &&
+            tomatoRect.top < tRect.bottom
+        ) {
+            createSplat(x, y, size);
+            tomato.remove();
+            return;
+        }
+
+        // Remove if off screen
+        if (y > window.innerHeight) {
+            tomato.remove();
+            return;
+        }
+
+        requestAnimationFrame(update);
+    }
+
+    update();
+}
+
+function createSplat(x, y, size) {
+    const splat = document.createElement("div");
+    splat.classList.add("splat");
+
+    let splatSize = size * 1.5;
+
+    splat.style.width = splatSize + "px";
+    splat.style.height = splatSize + "px";
+
+    splat.style.left = (x - splatSize / 2) + "px";
+    splat.style.top = (y - splatSize / 2) + "px";
+
+    scene.appendChild(splat);
+}
+</script>
+
+</body>
+</html>
