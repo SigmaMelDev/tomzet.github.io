@@ -47,18 +47,42 @@
 <body>
 
 <div id="scene">
-    <div class="target" id="target">
-        <img src="zeteriTOY.png">
+    <div class="target">
+        <img id="targetImg" src="zeteriTOY.png">
     </div>
 </div>
 
 <script>
 const scene = document.getElementById("scene");
-const target = document.getElementById("target");
+const target = document.querySelector(".target");
+const targetImg = document.getElementById("targetImg");
+
+// 🎯 Target images (make sure these exist)
+const targets = [
+    "zeteriTOY.png",
+    "ssibaTOY.png",
+    "tortilla.png",
+    "saironTOY.png",
+    "melTOY.png",
+    "ladusehkTOY.png",
+    "chernyTOY.png",
+    "alexTOY.png",
+    "whiteeTOY.png"
+];
 
 document.addEventListener("keydown", (e) => {
+
+    // SPACE → throw
     if (e.code === "Space") {
         throwTomato();
+    }
+
+    // 1–9 → change target
+    if (e.key >= "1" && e.key <= "9") {
+        let index = parseInt(e.key) - 1;
+        if (targets[index]) {
+            targetImg.src = targets[index];
+        }
     }
 });
 
@@ -66,14 +90,8 @@ function throwTomato() {
     const tomato = document.createElement("div");
     tomato.classList.add("tomato");
 
-    let startY = window.innerHeight - (30 + Math.random() * 40); 
-	// small variation at bottom
-
-	let peakY = window.innerHeight * (0.2 + Math.random() * 0.25); 
-	// peak varies between 20% and 45% of screen height
-
-	let velocityY = -(15 + Math.random() * 2); 
-	// different throw strength
+    let startY = window.innerHeight - (30 + Math.random() * 40);
+    let peakY = window.innerHeight * (0.2 + Math.random() * 0.25);
 
     let x = window.innerWidth / 2;
     let y = startY;
@@ -83,8 +101,9 @@ function throwTomato() {
 
     scene.appendChild(tomato);
 
+    let velocityY = -(17 + Math.random() * 5);
     let velocityX = (Math.random() - 0.5) * 3;
-    let gravity = 0.4;
+    let gravity = 0.35 + Math.random() * 0.15;
 
     function update() {
         velocityY += gravity;
@@ -102,7 +121,7 @@ function throwTomato() {
         tomato.style.width = size + "px";
         tomato.style.height = size + "px";
 
-        // Collision (ONLY when falling)
+        // Collision ONLY when falling
         const tRect = target.getBoundingClientRect();
         const tomatoRect = tomato.getBoundingClientRect();
 
